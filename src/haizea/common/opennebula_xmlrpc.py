@@ -163,7 +163,8 @@ class OpenNebulaHost(object):
         self.state = int(host_element.find("STATE").text)
         self.im_mad = host_element.find("IM_MAD").text
         self.vm_mad = host_element.find("VM_MAD").text
-        self.tm_mad = host_element.find("TM_MAD").text
+        TM_MAD = host_element.find("TM_MAD")
+        self.tm_mad = TM_MAD.text if TM_MAD else None
         self.last_mon_time = int(host_element.find("LAST_MON_TIME").text)
         
         host_share_element = host_element.find("HOST_SHARE")
