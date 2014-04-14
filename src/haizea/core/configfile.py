@@ -194,7 +194,13 @@ class HaizeaConfig(Config):
             See the Haizea documentation for details on how to write your own
             policies.
             """),
-            
+     Option(name        = "policy-matchmaking",
+            getter      = "policy.matchmaking",
+            type        = OPTTYPE_STRING,
+            required    = False,
+            default     = "condor",
+            doc         = ""),
+       
      Option(name        = "policy-host-selection",
             getter      = "policy.host-selection",
             type        = OPTTYPE_STRING,

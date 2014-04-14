@@ -87,7 +87,7 @@ class OpenNebulaXMLRPCClient(object):
         
     def vm_info(self, id):
         try:
-            (rc, value) = self.rpc.one.vm.info(self.auth, id)
+            (rc, value, _) = self.rpc.one.vm.info(self.auth, id)
             if rc == False:
                 raise Exception("ONE reported an error: %s" % value)
             else:

@@ -52,7 +52,8 @@ from haizea.core.log import HaizeaLogger
 from haizea.core.rpcserver import RPCServer
 from haizea.common.utils import abstract, round_datetime, Singleton, import_class, OpenNebulaXMLRPCClientSingleton
 from haizea.common.opennebula_xmlrpc import OpenNebulaXMLRPCClient
-from haizea.pluggable.policies import admission_class_mappings, preemption_class_mappings, host_class_mappings 
+from haizea.pluggable.policies import admission_class_mappings, preemption_class_mappings, host_class_mappings ,\
+    matchmaking_class_mappings
 from haizea.pluggable.accounting import probe_class_mappings
 
 import operator
@@ -203,8 +204,13 @@ class Manager(object):
         host_selection = host_class_mappings.get(host_selection, host_selection)
         host_selection = import_class(host_selection)
         host_selection = host_selection(slottable)
-
-        self.policy = PolicyManager(admission, preemption, host_selection)
+        
+        matchmaking = self.config.get("policy.matchmaking")
+        matchmaking = matchmaking_class_mappings.get(matchmaking, matchmaking)
+        matchmaking = import_class(matchmaking)
+        matchmaking = matchmaking(slottable)
+        
+        self.policy = PolicyManager(admission, preemption, host_selection, matchmaking)
 
         # Preparation scheduler
         if preparation_type == constants.PREPARATION_UNMANAGED:

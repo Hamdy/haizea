@@ -30,3 +30,5 @@ preemption_class_mappings = {"no-preemption": "haizea.pluggable.policies.preempt
 
 host_class_mappings = {"no-policy": "haizea.pluggable.policies.host_selection.NoPolicy",
                        "greedy": "haizea.pluggable.policies.host_selection.GreedyPolicy"}
+
+matchmaking_class_mappings = {"condor":"haizea.pluggable.policies.matchmaking.Condor"}

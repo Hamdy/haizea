@@ -45,7 +45,7 @@ class PolicyManager(object):
     access these modules.
     
     """    
-    def __init__(self, admission, preemption, host_selection):
+    def __init__(self, admission, preemption, host_selection, matchmaking):
         """Constructor
         
         Expects fully-constructed policies (these are currently
@@ -60,6 +60,7 @@ class PolicyManager(object):
         self.admission = admission
         self.preemption = preemption
         self.host_selection = host_selection
+        self.matchmaking = matchmaking
     
     def sort_leases(self, preemptor, preemptees, time):
         """Sorts a list of leases by their preemptability
@@ -125,6 +126,9 @@ class PolicyManager(object):
         """                
         return self.preemption.get_lease_preemptability_score(preemptor, preemptee, time)
 
+
+    def get_pnodes(self, vnode_capacity, pnode_ids,lease):
+        return self.matchmaking.get_pnodes(vnode_capacity, pnode_ids,lease)
 
     def get_host_score(self, node, time, lease):
         """Computes the score of a host
