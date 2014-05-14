@@ -13,21 +13,28 @@
 
 
     This version is modified as a part of this project : novel-hic.net
-
+    
+    
+	--------------
     Installation
     --------------
     
     
-    - Requirements:
+    (1) Requirements:
+    ------------------
     
-    	sudo apt-get install python-dev libxslt1-dev  zlib1g-dev libxml2-dev git-core
+    sudo apt-get install python-dev libxslt1-dev zlib1g-dev libxml2-dev git-core
     
-    - Offline install
     
-    	python setup.py install
+    (2) Offline install
+    -------------------
     
-    - Install directly using pip
+    python setup.py install
     
-    	pip install git+https://github.com/Hamdy/haizea
+        
+    (3) Install directly using pip
+    -------------------------------
+    
+    pip install git+https://github.com/Hamdy/haizea --allow-unverified egenix-mx-base
     
     
