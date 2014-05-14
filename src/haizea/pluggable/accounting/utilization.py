@@ -44,6 +44,10 @@ class CPUUtilizationProbe(AccountingProbe):
         utilization = sum([v for k,v in util.items() if k != None])
         self.accounting.append_to_counter(CPUUtilizationProbe.COUNTER_UTILIZATION, utilization)
 
+    def finalize_accounting(self, db):
+        pass
+    
+    
 
 class DiskUsageProbe(AccountingProbe):
     """
@@ -65,3 +69,7 @@ class DiskUsageProbe(AccountingProbe):
         """See AccountingProbe.at_timestep"""
         usage = lease_scheduler.vm_scheduler.resourcepool.get_max_disk_usage()
         self.accounting.append_to_counter(DiskUsageProbe.COUNTER_DISKUSAGE, usage)
+    
+    def finalize_accounting(self, db):
+        pass
+    

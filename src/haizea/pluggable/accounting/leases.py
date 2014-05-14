@@ -49,7 +49,7 @@ class ARProbe(AccountingProbe):
         self.accounting.create_stat(ARProbe.STAT_ACCEPTED)
         self.accounting.create_stat(ARProbe.STAT_REJECTED)
 
-    def finalize_accounting(self):
+    def finalize_accounting(self, db):
         """See AccountingProbe.finalize_accounting"""        
         self._set_stat_from_counter(ARProbe.STAT_ACCEPTED, ARProbe.COUNTER_ACCEPTED)
         self._set_stat_from_counter(ARProbe.STAT_REJECTED, ARProbe.COUNTER_REJECTED)
@@ -97,7 +97,7 @@ class IMProbe(AccountingProbe):
         self.accounting.create_stat(IMProbe.STAT_ACCEPTED)
         self.accounting.create_stat(IMProbe.STAT_REJECTED)
 
-    def finalize_accounting(self):
+    def finalize_accounting(self, db):
         """See AccountingProbe.finalize_accounting"""        
         self._set_stat_from_counter(IMProbe.STAT_ACCEPTED, IMProbe.COUNTER_ACCEPTED)
         self._set_stat_from_counter(IMProbe.STAT_REJECTED, IMProbe.COUNTER_REJECTED)
@@ -161,7 +161,7 @@ class BEProbe(AccountingProbe):
         self.accounting.create_stat(BEProbe.STAT_BESTEFFORTCOMPLETED)
         self.accounting.create_stat(BEProbe.STAT_ALLBESTEFFORT)
     
-    def finalize_accounting(self):
+    def finalize_accounting(self, db):
         """See AccountingProbe.finalize_accounting"""        
         self._set_stat_from_counter(BEProbe.STAT_BESTEFFORTCOMPLETED, BEProbe.COUNTER_BESTEFFORTCOMPLETED)
         all_best_effort = self.accounting.get_last_counter_time(BEProbe.COUNTER_BESTEFFORTCOMPLETED)

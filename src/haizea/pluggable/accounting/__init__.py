@@ -19,6 +19,25 @@
 """This package contains modules with pluggable accounting probes for Haizea.
 """
 
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from models import *
+
+db = None
+
+class Database(object):
+    
+    def __init__(self, file, echo=False):
+        global db
+        
+        if not db:
+            engin = create_engine('sqlite:///%s' % file, echo=False)
+            Base.metadata.create_all(engin)
+            Session = sessionmaker(bind=engin)
+            db = Session()
+        self.db = db
+        
 # The following dictionaries provide a shorthand notation to refer to
 # the accounting probes (this shorthand is used in the configuration file,
 # so the fully-qualified class name doesn't have to be written)

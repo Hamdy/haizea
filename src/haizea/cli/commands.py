@@ -142,8 +142,50 @@ class haizea(Command):
                     sys.exit(1)
 
 class haizea_statistics(Command):
-    pass
-
+    name = "haizea-statisitcs"
+    
+    """
+    Haizea Statistics graphing framework.
+    """
+    
+    def __init__(self, argv):
+        Command.__init__(self, argv)
+        
+        self.optparser.add_option(Option("-c", "--conf", action="store", type="string", dest="conf",
+                                         help = """
+                                         The location of the Haizea configuration file. If not
+                                         specified, Haizea will first look for it in
+                                         /etc/haizea/haizea.conf and then in ~/.haizea/haizea.conf.
+                                         """))
+        
+        
+            
+    
+    def run(self):
+        self.parse_options()
+        
+        try:
+            configfile=self.opt.conf
+            if configfile == None:
+                # Look for config file in default locations
+                for loc in defaults.CONFIG_LOCATIONS:
+                    if os.path.exists(loc):
+                        config = HaizeaConfig.from_file(loc)
+                        break
+                else:
+                    print >> sys.stdout, "No configuration file specified, and none found at default locations."
+                    print >> sys.stdout, "Make sure a config file exists at:\n  -> %s" % "\n  -> ".join(defaults.CONFIG_LOCATIONS)
+                    print >> sys.stdout, "Or specify a configuration file with the --conf option."
+                    exit(1)
+            else:
+                config = HaizeaConfig.from_file(configfile)
+        except ConfigException, msg:
+            print >> sys.stderr, "Error in configuration file:"
+            print >> sys.stderr, msg
+            exit(1)
+            
+        
+        
 class haizea_generate_configs(Command):
     """
     Takes an Haizea multiconfiguration file and generates the individual

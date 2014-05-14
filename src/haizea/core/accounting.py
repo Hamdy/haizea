@@ -21,6 +21,8 @@
 import os
 import os.path
 from haizea.common.utils import pickle, get_clock
+from haizea.pluggable.accounting import Database
+
 from errno import EEXIST
 
 class AccountingData(object):
@@ -90,7 +92,7 @@ class AccountingDataCollection(object):
         self.__data = AccountingData()
         self.__datafile = datafile
         self.__probes = []
-
+        self.__db = Database(self.__datafile)
         self.__data.attrs = attrs
 
 
@@ -267,7 +269,7 @@ class AccountingDataCollection(object):
                 self.__data.counters[counter_id] = self.__add_timeweighted_average(l)
         
         for probe in self.__probes:
-            probe.finalize_accounting()
+            probe.finalize_accounting(self.__db)
             
 
     def save_to_disk(self, leases):
@@ -283,17 +285,15 @@ class AccountingDataCollection(object):
         except OSError, e:
             if e.errno != EEXIST:
                 raise e
-    
+        
         # Add lease data
         # Remove some data that won't be necessary in the reporting tools
         for l in leases.values():
             l.clear_rrs()
             l.logger = None
             self.__data.leases[l.id] = l
-
-        # Save data
-        pickle(self.__data, self.__datafile)
             
+        # save lease data in db
     
     def at_timestep(self, lease_scheduler):
         """Invoke the probes' at_timestep handlers.
