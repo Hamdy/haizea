@@ -141,6 +141,9 @@ class haizea(Command):
                     print str(err)
                     sys.exit(1)
 
+class haizea_statistics(Command):
+    pass
+
 class haizea_generate_configs(Command):
     """
     Takes an Haizea multiconfiguration file and generates the individual

@@ -23,6 +23,7 @@ import haizea.common.defaults as defaults
 import sys
 from mx.DateTime import TimeDelta
 import ConfigParser
+import os
 
 class HaizeaConfig(Config):
 
@@ -912,7 +913,7 @@ class HaizeaMultiConfig(Config):
                     # Add datafile option
                     datadir = self.config.get(self.MULTI_SEC, self.DATADIR_OPT)
                     datafilename = generate_config_name(profile, tracefile, injectfile)
-                    datafile = datadir + "/" + datafilename + ".dat"
+                    datafile = os.path.expanduser(datadir + "/" + datafilename + ".dat")
                     # The accounting section may have not been created
                     if not profileconfig.has_section("accounting"):
                         profileconfig.add_section("accounting")

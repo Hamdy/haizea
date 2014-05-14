@@ -149,7 +149,7 @@ class Manager(object):
         if mode == "simulated":
             resources = self.config.get("simul.resources")
             if resources == "in-tracefile":
-                tracefile = self.config.get("tracefile")
+                tracefile = os.path.expanduser(self.config.get("tracefile"))
                 site = Site.from_lwf_file(tracefile)
             elif resources.startswith("file:"):
                 sitefile = resources.split(":")
@@ -240,8 +240,7 @@ class Manager(object):
     
         # Statistics collection 
         attrs = dict([(attr, self.config.get_attr(attr)) for attr in self.config.get_attrs()])    
-        
-        self.accounting = AccountingDataCollection(self.config.get("datafile"), attrs)
+        self.accounting = AccountingDataCollection(os.path.expanduser(self.config.get("datafile")), attrs)
         # Load probes
         probes = self.config.get("accounting-probes")
         probes = probes.split()
@@ -280,7 +279,7 @@ class Manager(object):
 
         logger = logging.getLogger("")
         if self.daemon:
-            handler = logging.FileHandler(self.config.get("logfile"))
+            handler = logging.FileHandler(os.path.expanduser(self.config.get("logfile")))
         else:
             handler = logging.StreamHandler()
         if sys.version_info[1] <= 4:

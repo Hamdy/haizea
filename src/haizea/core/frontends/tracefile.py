@@ -22,6 +22,7 @@ from haizea.core.frontends import RequestFrontend
 from haizea.core.leases import LeaseWorkload, Lease, DiskImageSoftwareEnvironment
 import operator
 import logging
+import os
 
 class TracefileFrontend(RequestFrontend):
     def __init__(self, starttime):
@@ -32,7 +33,7 @@ class TracefileFrontend(RequestFrontend):
     def load(self, manager):
         config = manager.config
         
-        tracefile = config.get("tracefile")
+        tracefile = os.path.expanduser(config.get("tracefile"))
         injectfile = config.get("injectionfile")
         imagefile = config.get("imagefile")
         
