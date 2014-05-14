@@ -30,6 +30,9 @@ import os
 import errno
 import signal
 from time import sleep
+from haizea.pluggable.accounting import Database
+from haizea.pluggable.accounting.models import Experiment
+from haizea.cli.rpc_commands import console_table_printer
 
 try:
     import xml.etree.ElementTree as ET
@@ -185,7 +188,350 @@ class haizea_statistics(Command):
             exit(1)
             
         
+class haizea_experiments_list(Command):
+    name = "haizea-experiments-list"
+    
+    def __init__(self, argv):
+        Command.__init__(self, argv)
         
+        self.optparser.add_option(Option("-c", "--conf", action="store", type="string", dest="conf",
+                                         help = """
+                                         The location of the Haizea configuration file. If not
+                                         specified, Haizea will first look for it in
+                                         /etc/haizea/haizea.conf and then in ~/.haizea/haizea.conf.
+                                         """))
+        
+        
+    def run(self):
+        self.parse_options()
+        
+        try:
+            configfile=self.opt.conf
+            if configfile == None:
+                # Look for config file in default locations
+                for loc in defaults.CONFIG_LOCATIONS:
+                    if os.path.exists(loc):
+                        config = HaizeaConfig.from_file(loc)
+                        break
+                else:
+                    print >> sys.stdout, "No configuration file specified, and none found at default locations."
+                    print >> sys.stdout, "Make sure a config file exists at:\n  -> %s" % "\n  -> ".join(defaults.CONFIG_LOCATIONS)
+                    print >> sys.stdout, "Or specify a configuration file with the --conf option."
+                    exit(1)
+            else:
+                config = HaizeaConfig.from_file(configfile)
+            db = Database(os.path.expanduser(config.get("datafile"))).db
+            
+            experiments = []
+            for e in db.query(Experiment).order_by("-id").all():
+                d = {"id":e.id, "description":e.description,
+                     "accepted_ar":e.total_accepted_ar,
+                     "rejected_ar" : e.total_rejected_ar,
+                     "accepted_im":e.total_accepted_im,
+                     "rejected_im" : e.total_rejected_im,
+                     "total_completed_be" : e.total_completed_be,
+                     "be_finish_time" : e.be_completed_after
+                     }
+                experiments.append(d)
+            
+            fields = [("id","ID", 3),
+                  ("description","Description", 15),
+                  ("accepted_ar","Total Accepted AR", 18),
+                  ("rejected_ar","Total Rejected AR", 18),
+                   ("accepted_im","Total Accepted IM", 18),
+                   ("rejected_im","Total Rejected IM", 18),
+                  ("total_completed_be", "Total completed BE", 10),
+                  ("be_finish_time","BE Finished after (min)", 1)               
+                  ]
+            
+            console_table_printer(fields, experiments)
+            
+        except ConfigException, msg:
+            print >> sys.stderr, "Error in configuration file:"
+            print >> sys.stderr, msg
+            exit(1)
+
+class haizea_experiments_delete(Command):
+    name = "haizea-experiments-delete"
+    
+    def __init__(self, argv):
+        Command.__init__(self, argv)
+        
+        self.optparser.add_option(Option("-c", "--conf", action="store", type="string", dest="conf",
+                                         help = """
+                                         The location of the Haizea configuration file. If not
+                                         specified, Haizea will first look for it in
+                                         /etc/haizea/haizea.conf and then in ~/.haizea/haizea.conf.
+                                         """))
+        
+    def run(self):
+        self.parse_options()
+        
+        try:
+            configfile=self.opt.conf
+            if configfile == None:
+                # Look for config file in default locations
+                for loc in defaults.CONFIG_LOCATIONS:
+                    if os.path.exists(loc):
+                        config = HaizeaConfig.from_file(loc)
+                        break
+                else:
+                    print >> sys.stdout, "No configuration file specified, and none found at default locations."
+                    print >> sys.stdout, "Make sure a config file exists at:\n  -> %s" % "\n  -> ".join(defaults.CONFIG_LOCATIONS)
+                    print >> sys.stdout, "Or specify a configuration file with the --conf option."
+                    exit(1)
+            else:
+                config = HaizeaConfig.from_file(configfile)
+            
+            import sys
+            
+            if len(sys.argv) == 1:
+                print >> sys.stdout, "You must provide experimetns to delete"
+                print >> sys.stdout, "Example: haizea-experiments-delete 1"
+                print >> sys.stdout, "         haizea-experimetns-delete \"1 2 3 4\"  (List of experiments)"
+                exit(1)
+            
+
+            db = Database(os.path.expanduser(config.get("datafile"))).db
+            
+            try:
+                ids = map(int, sys.argv[1:])
+                db.query(Experiment).filter(Experiment.id.in_(ids)).delete(synchronize_session=False)
+                db.commit()
+                
+            except Exception:
+                print >> sys.stderr, "Invalid ID(s)"
+
+            
+        except ConfigException, msg:
+            print >> sys.stderr, "Error in configuration file:"
+            print >> sys.stderr, msg
+            exit(1)
+
+class haizea_experiments_describe(Command):
+    name = "haizea-experiments-describe"
+    
+    def __init__(self, argv):
+        Command.__init__(self, argv)
+        
+        self.optparser.add_option(Option("-c", "--conf", action="store", type="string", dest="conf",
+                                         help = """
+                                         The location of the Haizea configuration file. If not
+                                         specified, Haizea will first look for it in
+                                         /etc/haizea/haizea.conf and then in ~/.haizea/haizea.conf.
+                                         """))
+        
+    def run(self):
+        self.parse_options()
+        
+        try:
+            configfile=self.opt.conf
+            if configfile == None:
+                # Look for config file in default locations
+                for loc in defaults.CONFIG_LOCATIONS:
+                    if os.path.exists(loc):
+                        config = HaizeaConfig.from_file(loc)
+                        break
+                else:
+                    print >> sys.stdout, "No configuration file specified, and none found at default locations."
+                    print >> sys.stdout, "Make sure a config file exists at:\n  -> %s" % "\n  -> ".join(defaults.CONFIG_LOCATIONS)
+                    print >> sys.stdout, "Or specify a configuration file with the --conf option."
+                    exit(1)
+            else:
+                config = HaizeaConfig.from_file(configfile)
+            
+            import sys
+            
+            if len(sys.argv) != 3:
+                print >> sys.stdout, "You must provide experiment ID & Description"
+                print >> sys.stdout, "Example: haizea-experiments-describe 1 \"Experiment 1\""
+                exit(1)
+            
+
+            db = Database(os.path.expanduser(config.get("datafile"))).db
+            
+            try:
+                id = int(sys.argv[1])
+                db.query(Experiment).filter_by(id=id).update({'description':str(sys.argv[2])})
+                db.commit()
+            except Exception:
+                print >> sys.stderr, "Invalid ID(s)"
+            
+        except ConfigException, msg:
+            print >> sys.stderr, "Error in configuration file:"
+            print >> sys.stderr, msg
+            exit(1)
+
+
+class haizea_experiments_clear(Command):
+    name = "haizea-experiments-clear"
+    
+    def __init__(self, argv):
+        Command.__init__(self, argv)
+        
+        self.optparser.add_option(Option("-c", "--conf", action="store", type="string", dest="conf",
+                                         help = """
+                                         The location of the Haizea configuration file. If not
+                                         specified, Haizea will first look for it in
+                                         /etc/haizea/haizea.conf and then in ~/.haizea/haizea.conf.
+                                         """))
+        
+        
+    def run(self):
+        self.parse_options()
+        
+        try:
+            configfile=self.opt.conf
+            if configfile == None:
+                # Look for config file in default locations
+                for loc in defaults.CONFIG_LOCATIONS:
+                    if os.path.exists(loc):
+                        config = HaizeaConfig.from_file(loc)
+                        break
+                else:
+                    print >> sys.stdout, "No configuration file specified, and none found at default locations."
+                    print >> sys.stdout, "Make sure a config file exists at:\n  -> %s" % "\n  -> ".join(defaults.CONFIG_LOCATIONS)
+                    print >> sys.stdout, "Or specify a configuration file with the --conf option."
+                    exit(1)
+            else:
+                config = HaizeaConfig.from_file(configfile)
+
+            ans = raw_input("Are you sure you want to clear all the experiments from databas? Y/N? ")
+            
+            if ans == 'Y' or ans == 'y':
+                from sqlalchemy.engine import reflection
+                from sqlalchemy import create_engine
+                from sqlalchemy.schema import (
+                    MetaData,
+                    Table,
+                    DropTable,
+                    ForeignKeyConstraint,
+                    DropConstraint,
+                    )
+                
+                engine = create_engine('sqlite:///%s' % os.path.expanduser(config.get("datafile")), echo=False)
+
+                conn = engine.connect()
+                
+                # the transaction only applies if the DB supports
+                # transactional DDL, i.e. Postgresql, MS SQL Server
+                trans = conn.begin()
+                
+                inspector = reflection.Inspector.from_engine(engine)
+                
+                # gather all data first before dropping anything.
+                # some DBs lock after things have been dropped in 
+                # a transaction.
+                
+                metadata = MetaData()
+                
+                tbs = []
+                all_fks = []
+                
+                for table_name in inspector.get_table_names():
+                    fks = []
+                    for fk in inspector.get_foreign_keys(table_name):
+                        if not fk['name']:
+                            continue
+                        fks.append(
+                            ForeignKeyConstraint((),(),name=fk['name'])
+                            )
+                    t = Table(table_name,metadata,*fks)
+                    tbs.append(t)
+                    all_fks.extend(fks)
+                
+                for fkc in all_fks:
+                    conn.execute(DropConstraint(fkc))
+
+                for table in tbs:
+                    conn.execute(DropTable(table))
+                
+                trans.commit()
+                                
+           
+            
+        except ConfigException, msg:
+            print >> sys.stderr, "Error in configuration file:"
+            print >> sys.stderr, msg
+            exit(1)
+   
+        
+class haizea_experiments_statistics_list(Command):
+    name = "haizea-experiments-statistics-list"
+    
+    def __init__(self, argv):
+        Command.__init__(self, argv)
+        
+        self.optparser.add_option(Option("-c", "--conf", action="store", type="string", dest="conf",
+                                         help = """
+                                         The location of the Haizea configuration file. If not
+                                         specified, Haizea will first look for it in
+                                         /etc/haizea/haizea.conf and then in ~/.haizea/haizea.conf.
+                                         """))
+        
+    def run(self):
+        self.parse_options()
+        
+        try:
+            configfile=self.opt.conf
+            if configfile == None:
+                # Look for config file in default locations
+                for loc in defaults.CONFIG_LOCATIONS:
+                    if os.path.exists(loc):
+                        config = HaizeaConfig.from_file(loc)
+                        break
+                else:
+                    print >> sys.stdout, "No configuration file specified, and none found at default locations."
+                    print >> sys.stdout, "Make sure a config file exists at:\n  -> %s" % "\n  -> ".join(defaults.CONFIG_LOCATIONS)
+                    print >> sys.stdout, "Or specify a configuration file with the --conf option."
+                    exit(1)
+            else:
+                config = HaizeaConfig.from_file(configfile)
+            
+            import sys
+            
+            if len(sys.argv) != 2:
+                print >> sys.stdout, "You must provide an experimetn ID to show it's lease statistics"
+                print >> sys.stdout, "Example: haizea-experiments-statistics-list 1"
+                exit(1)
+            
+
+            db = Database(os.path.expanduser(config.get("datafile"))).db
+            
+            try:
+                id = int(sys.argv[1])
+                lease_statistics = db.query(Experiment).filter_by(id=id).first()
+                
+                if not lease_statistics:
+                    sys.exit(1)
+                    
+                lease_statistics = lease_statistics.lease_statistics
+                
+                print "\n"
+    
+                fields = [("name","Best Effort Lease ID", 20),
+                      ("waiting","Waiting time (mins)", 20),
+                      ("slowdown" , "Slow down Ratio", 10),
+                      ]
+                values = []
+                
+                for e in lease_statistics:
+                    d = {"name":e.id, "waiting":e.waiting_time, "slowdown":e.slowdown}
+                    values.append(d)
+                
+                console_table_printer(fields, values)
+                print "\n"
+        
+                
+            except Exception:
+                print >> sys.stderr, "Invalid ID"
+
+            
+        except ConfigException, msg:
+            print >> sys.stderr, "Error in configuration file:"
+            print >> sys.stderr, msg
+            exit(1)
+
 class haizea_generate_configs(Command):
     """
     Takes an Haizea multiconfiguration file and generates the individual

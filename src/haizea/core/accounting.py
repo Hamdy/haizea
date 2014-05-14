@@ -15,6 +15,8 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
+from haizea.pluggable.accounting.models import Experiment, LeaseStatistics
+from haizea.cli.rpc_commands import console_table_printer
 
 """Classes used to collect data"""
 
@@ -92,7 +94,7 @@ class AccountingDataCollection(object):
         self.__data = AccountingData()
         self.__datafile = datafile
         self.__probes = []
-        self.__db = Database(self.__datafile)
+        self.__db = Database(self.__datafile).db
         self.__data.attrs = attrs
 
 
@@ -268,6 +270,12 @@ class AccountingDataCollection(object):
             elif avgtype == AccountingDataCollection.AVERAGE_TIMEWEIGHTED:
                 self.__data.counters[counter_id] = self.__add_timeweighted_average(l)
         
+        e = Experiment()
+        self.__db.add(e)
+        self.__db.commit()
+        e.description = "Experiment %s" % str(e.id)
+        self.__db.commit()
+        
         for probe in self.__probes:
             probe.finalize_accounting(self.__db)
             
@@ -292,9 +300,59 @@ class AccountingDataCollection(object):
             l.clear_rrs()
             l.logger = None
             self.__data.leases[l.id] = l
-            
-        # save lease data in db
+
+        # Display Statistics on screen.
+        print "\n"
+        values = []
+        
+        self.__data.stats['BE leases finished after (mins)'] = self.__data.stats['all-best-effort'] / 60.0
+        self.__data.stats.pop('all-best-effort')
+        
+        for k, v in self.__data.stats.iteritems():
+            d = {"name":k, "value":v}
+            values.append(d)
+        
+        fields = [("name","Statistic metric", 40),
+              ("value","Value", 4)]
+        
+        console_table_printer(fields, values)
+        print "\n"
     
+        fields = [("name","Best Effort Lease ID", 20),
+              ("waiting","Waiting time (mins)", 20),
+              ("slowdown" , "Slow down Ratio", 10),
+              ]
+        values = []
+        
+        for k, v in self.__data.lease_stats.iteritems():
+            d = {"name":k, "waiting":v['Waiting time']/60.0, "slowdown":v["Slowdown"]}
+            values.append(d)
+        
+        console_table_printer(fields, values)
+        print "\n"
+        
+        # Save statistics into Database
+        e = self.__db.query(Experiment).order_by("-id").first()
+        e.total_accepted_ar = self.__data.stats['Total accepted AR']
+        e.total_rejected_ar = self.__data.stats['Total rejected AR']
+        e.total_accepted_im = self.__data.stats['Total accepted Immediate']
+        e.total_rejected_im = self.__data.stats['Total rejected Immediate']
+        e.total_completed_be =  self.__data.stats['Total best-effort completed']
+        e.be_completed_after = self.__data.stats['BE leases finished after (mins)']
+        
+        # Save lease statistics to database
+        lease_stats = []
+        for k, v in self.__data.lease_stats.iteritems():
+            d = {}
+            d['experiment_id'] = e.id
+            d['lease_id'] = k
+            d['waiting_time'] = v['Waiting time']/60.0
+            d['slowdown'] = v['Slowdown']
+            lease_stats.append(d)
+
+        self.__db.execute(LeaseStatistics.__table__.insert(), lease_stats)
+        self.__db.commit()
+        
     def at_timestep(self, lease_scheduler):
         """Invoke the probes' at_timestep handlers.
         

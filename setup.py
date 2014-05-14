@@ -27,7 +27,9 @@ setup(name='haizea',
                 'haizea.pluggable.accounting'],
       scripts=['bin/haizea', 'bin/haizea-generate-configs', 'bin/haizea-generate-scripts', 'bin/haizea-convert-data', 
                'bin/haizea-cancel-lease', 'bin/haizea-list-leases', 'bin/haizea-list-hosts', 'bin/haizea-request-lease',
-               'bin/haizea-show-queue', 'bin/haizea-statistics'],
+               'bin/haizea-show-queue', 'bin/haizea-statistics', 'bin/haizea-experiments-list', 'bin/haizea-experiments-clear',
+               'bin/haizea-experiments-delete', 'bin/haizea-experiments-describe', 'bin/haizea-experiments-statistics-list'
+               ],
       
       data_files=[(HOME, ['etc/haizea.conf'],
                    SAMPLE_CONFIG, [

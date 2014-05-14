@@ -24,19 +24,24 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from models import *
 
-db = None
+database = None
 
 class Database(object):
     
     def __init__(self, file, echo=False):
-        global db
+        global database
         
-        if not db:
+        if not database:
             engin = create_engine('sqlite:///%s' % file, echo=False)
             Base.metadata.create_all(engin)
             Session = sessionmaker(bind=engin)
-            db = Session()
-        self.db = db
+            database = Session()
+        self.database = database
+        
+    @property
+    def db(self):
+        return self.database
+
         
 # The following dictionaries provide a shorthand notation to refer to
 # the accounting probes (this shorthand is used in the configuration file,
@@ -45,5 +50,6 @@ probe_class_mappings = {             "ar": "haizea.pluggable.accounting.leases.A
                             "best-effort": "haizea.pluggable.accounting.leases.BEProbe",
                               "immediate": "haizea.pluggable.accounting.leases.IMProbe",
                         "cpu-utilization": "haizea.pluggable.accounting.utilization.CPUUtilizationProbe",
+                        "cpu_pnodes" : "haizea.pluggable.accounting.utilization.CpuLoadOnPhysicalNodes",
                              "disk-usage": "haizea.pluggable.accounting.utilization.DiskUsageProbe",
                         }

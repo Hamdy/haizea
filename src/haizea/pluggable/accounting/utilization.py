@@ -15,6 +15,7 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
+from haizea.common import constants
 
 """Accounting probes that collect data on resource utilization"""
 
@@ -43,10 +44,35 @@ class CPUUtilizationProbe(AccountingProbe):
         util = lease_scheduler.vm_scheduler.get_utilization(get_clock().get_time())
         utilization = sum([v for k,v in util.items() if k != None])
         self.accounting.append_to_counter(CPUUtilizationProbe.COUNTER_UTILIZATION, utilization)
-
+        
     def finalize_accounting(self, db):
         pass
     
+class CpuLoadOnPhysicalNodes(AccountingProbe):
+    COUNTER_CPU_LOAD_ON_PNODE="cpu_pnode"
+    
+    def __init__(self, accounting):
+        """See AccountingProbe.__init__"""        
+        AccountingProbe.__init__(self, accounting)
+        self.accounting.create_counter(CpuLoadOnPhysicalNodes.COUNTER_CPU_LOAD_ON_PNODE, AccountingDataCollection.AVERAGE_NONE)
+        self.all_pnode_capacities = {}
+        
+    def at_timestep(self, lease_scheduler):
+        # Total cpu utilization of node (node_cpu at time stamp / total node cpu)  
+        util = {}
+        reservations = lease_scheduler.vm_scheduler.slottable.get_reservations_at(get_clock().get_time())
+        for r in reservations:
+            
+            for node in r.resources_in_pnode:
+                use = r.resources_in_pnode[node].get_by_type(constants.RES_CPU)
+                util[node] = use + util.get(node, 0.0)
+        self.accounting.append_to_counter(CpuLoadOnPhysicalNodes.COUNTER_CPU_LOAD_ON_PNODE, util)
+        if not self.all_pnode_capacities:
+            for pnode, cpacity in lease_scheduler.vm_scheduler.slottable.nodes.iteritems():
+                self.all_pnode_capacities[pnode] = cpacity.capacity.get_by_type(constants.RES_CPU)  
+        
+    def finalize_accounting(self, db):
+        pass
     
 
 class DiskUsageProbe(AccountingProbe):

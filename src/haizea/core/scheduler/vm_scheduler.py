@@ -337,7 +337,7 @@ class VMScheduler(object):
             
         return util              
         
-
+       
     def __schedule_exact(self, lease, nexttime, earliest):
         """ Schedules VMs that must start at an exact time
         
