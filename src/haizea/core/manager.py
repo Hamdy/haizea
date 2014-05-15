@@ -389,7 +389,8 @@ class Manager(object):
         # Write all collected data to disk
         leases = self.scheduler.completed_leases.entries
         self.accounting.save_to_disk(leases)
-        
+        self.accounting.print_stats()
+
         # Stop RPC server
         if self.rpc_server != None:
             self.rpc_server.stop()

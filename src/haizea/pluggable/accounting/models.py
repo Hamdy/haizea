@@ -48,4 +48,62 @@ class LeaseStatistics(Base):
     waiting_time = Column(Float)
     slowdown = Column(Float)
 
+class AcceptedAR(Base):
+    __tablename__ = 'accepted_ar'
     
+    id = Column(Integer, primary_key=True)
+    experiment_id = Column(Integer, ForeignKey('experiments.id'))
+    experiment = relationship("Experiment", backref=backref('accepted_ars', order_by=id))
+    time = Column(Float)
+    lease_id = Column(Integer)
+    count = Column(Integer)
+
+class AcceptedIM(Base):
+    __tablename__ = 'accepted_im'
+    
+    id = Column(Integer, primary_key=True)
+    experiment_id = Column(Integer, ForeignKey('experiments.id'))
+    experiment = relationship("Experiment", backref=backref('accepted_ims', order_by=id))
+    time = Column(Float)
+    lease_id = Column(Integer)
+    count = Column(Integer)
+    
+class RejectedAR(Base):
+    __tablename__ = 'rejected_ar'
+    
+    id = Column(Integer, primary_key=True)
+    experiment_id = Column(Integer, ForeignKey('experiments.id'))
+    experiment = relationship("Experiment", backref=backref('rejected_ars', order_by=id))
+    time = Column(Float)
+    lease_id = Column(Integer)
+    count = Column(Integer)
+    
+class RejectedIM(Base):
+    __tablename__ = 'rejected_im'
+    
+    id = Column(Integer, primary_key=True)
+    experiment_id = Column(Integer, ForeignKey('experiments.id'))
+    experiment = relationship("Experiment", backref=backref('rejected_ims', order_by=id))
+    time = Column(Float)
+    lease_id = Column(Integer)
+    count = Column(Integer)
+    
+class CompletedBE(Base):
+    __tablename__ = 'completed_be'
+    
+    id = Column(Integer, primary_key=True)
+    experiment_id = Column(Integer, ForeignKey('experiments.id'))
+    experiment = relationship("Experiment", backref=backref('completed_bes', order_by=id))
+    time = Column(Float)
+    lease_id = Column(Integer)
+    count = Column(Integer)
+
+class QueueSizeBE(Base):
+    __tablename__ = 'queue_size_be'
+    
+    id = Column(Integer, primary_key=True)
+    experiment_id = Column(Integer, ForeignKey('experiments.id'))
+    experiment = relationship("Experiment", backref=backref('queue_size_bes', order_by=id))
+    time = Column(Float)
+    lease_id = Column(Integer)
+    count = Column(Integer)

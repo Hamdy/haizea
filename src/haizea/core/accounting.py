@@ -96,7 +96,8 @@ class AccountingDataCollection(object):
         self.__probes = []
         self.__db = Database(self.__datafile).db
         self.__data.attrs = attrs
-
+        # Allow access __data from probesq
+        self.data = self.__data
 
     def add_probe(self, probe):
         """Adds a new accounting probe
@@ -280,27 +281,7 @@ class AccountingDataCollection(object):
             probe.finalize_accounting(self.__db)
             
 
-    def save_to_disk(self, leases):
-        """Save accounting data to disk.
-        
-        @param leases: List of leases to be saved to disk
-        @type leases: List of L{Lease}s
-        """           
-        try:
-            dirname = os.path.dirname(self.__datafile)
-            if not os.path.exists(dirname):
-                os.makedirs(dirname)
-        except OSError, e:
-            if e.errno != EEXIST:
-                raise e
-        
-        # Add lease data
-        # Remove some data that won't be necessary in the reporting tools
-        for l in leases.values():
-            l.clear_rrs()
-            l.logger = None
-            self.__data.leases[l.id] = l
-
+    def print_stats(self):
         # Display Statistics on screen.
         print "\n"
         values = []
@@ -330,29 +311,29 @@ class AccountingDataCollection(object):
         
         console_table_printer(fields, values)
         print "\n"
-        
-        # Save statistics into Database
-        e = self.__db.query(Experiment).order_by("-id").first()
-        e.total_accepted_ar = self.__data.stats['Total accepted AR']
-        e.total_rejected_ar = self.__data.stats['Total rejected AR']
-        e.total_accepted_im = self.__data.stats['Total accepted Immediate']
-        e.total_rejected_im = self.__data.stats['Total rejected Immediate']
-        e.total_completed_be =  self.__data.stats['Total best-effort completed']
-        e.be_completed_after = self.__data.stats['BE leases finished after (mins)']
-        
-        # Save lease statistics to database
-        lease_stats = []
-        for k, v in self.__data.lease_stats.iteritems():
-            d = {}
-            d['experiment_id'] = e.id
-            d['lease_id'] = k
-            d['waiting_time'] = v['Waiting time']/60.0
-            d['slowdown'] = v['Slowdown']
-            lease_stats.append(d)
 
-        self.__db.execute(LeaseStatistics.__table__.insert(), lease_stats)
-        self.__db.commit()
+    def save_to_disk(self, leases):
+        """Save accounting data to disk.
         
+        @param leases: List of leases to be saved to disk
+        @type leases: List of L{Lease}s
+        """           
+        try:
+            dirname = os.path.dirname(self.__datafile)
+            if not os.path.exists(dirname):
+                os.makedirs(dirname)
+        except OSError, e:
+            if e.errno != EEXIST:
+                raise e
+        
+        # Add lease data
+        # Remove some data that won't be necessary in the reporting tools
+        for l in leases.values():
+            l.clear_rrs()
+            l.logger = None
+            self.__data.leases[l.id] = l
+
+                
     def at_timestep(self, lease_scheduler):
         """Invoke the probes' at_timestep handlers.
         

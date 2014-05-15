@@ -500,13 +500,28 @@ class haizea_experiments_statistics_list(Command):
             
             try:
                 id = int(sys.argv[1])
-                lease_statistics = db.query(Experiment).filter_by(id=id).first()
+                exp = db.query(Experiment).filter_by(id=id).first()
                 
-                if not lease_statistics:
+                if not exp:
                     sys.exit(1)
                     
-                lease_statistics = lease_statistics.lease_statistics
+                lease_statistics = exp.lease_statistics
                 
+                print "\n"
+                
+                fields = [("name","Statistic metric", 40),
+                          ("value","Value", 4)]
+                
+                values = [
+                    {"name":"Total best-effort completed", "value":exp.total_completed_be},
+                    {"name":"BE leases finished after (mins)", "value":exp.be_completed_after},
+                    {"name":"Total accepted AR", "value":exp.total_accepted_ar},
+                    {"name":"Total rejected AR", "value":exp.total_rejected_ar},
+                    {"name":"Total accepted Immediate", "value":exp.total_accepted_im},
+                    {"name":"Total rejected Immediate", "value":exp.total_rejected_im}]
+                
+                console_table_printer(fields, values)
+                        
                 print "\n"
     
                 fields = [("name","Best Effort Lease ID", 20),
