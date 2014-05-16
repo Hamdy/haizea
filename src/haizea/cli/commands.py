@@ -33,6 +33,8 @@ from time import sleep
 from haizea.pluggable.accounting import Database
 from haizea.pluggable.accounting.models import Experiment
 from haizea.cli.rpc_commands import console_table_printer
+from haizea.gui import HaizeaGuiApp
+from haizea.pluggable.accounting.graph import Graph
 
 try:
     import xml.etree.ElementTree as ET
@@ -40,6 +42,54 @@ except ImportError:
     # Compatibility with Python <=2.4
     import elementtree.ElementTree as ET 
 
+class haizea_gui(Command):
+    name = "haizea-gui"
+    
+    """
+    Haizea GUI
+    """
+    
+    def __init__(self, argv):
+        Command.__init__(self, argv)
+        
+        self.optparser.add_option(Option("-c", "--conf", action="store", type="string", dest="conf",
+                                         help = """
+                                         The location of the Haizea configuration file. If not
+                                         specified, Haizea will first look for it in
+                                         /etc/haizea/haizea.conf and then in ~/.haizea/haizea.conf.
+                                         """))
+        
+        
+            
+    
+    def run(self):
+        self.parse_options()
+        
+        try:
+            configfile=self.opt.conf
+            if configfile == None:
+                # Look for config file in default locations
+                for loc in defaults.CONFIG_LOCATIONS:
+                    if os.path.exists(loc):
+                        config = HaizeaConfig.from_file(loc)
+                        break
+                else:
+                    print >> sys.stdout, "No configuration file specified, and none found at default locations."
+                    print >> sys.stdout, "Make sure a config file exists at:\n  -> %s" % "\n  -> ".join(defaults.CONFIG_LOCATIONS)
+                    print >> sys.stdout, "Or specify a configuration file with the --conf option."
+                    exit(1)
+            else:
+                config = HaizeaConfig.from_file(configfile)
+            
+            app = HaizeaGuiApp()
+            app.run()
+
+        except ConfigException, msg:
+            print >> sys.stderr, "Error in configuration file:"
+            print >> sys.stderr, msg
+            exit(1)
+            
+        
 
 class haizea(Command):
     """
@@ -841,5 +891,61 @@ class haizea_lwf2xml(Command):
 
 
         
+class haizea_experiments_graph(Command):
+    name = "haizea-experiments-delete"
+    
+    def __init__(self, argv, type):
+        Command.__init__(self, argv)
+        self.type = type
+        
+        self.optparser.add_option(Option("-c", "--conf", action="store", type="string", dest="conf",
+                                         help = """
+                                         The location of the Haizea configuration file. If not
+                                         specified, Haizea will first look for it in
+                                         /etc/haizea/haizea.conf and then in ~/.haizea/haizea.conf.
+                                         """))
+        
+    def run(self):
+        self.parse_options()
+        
+        try:
+            configfile=self.opt.conf
+            if configfile == None:
+                # Look for config file in default locations
+                for loc in defaults.CONFIG_LOCATIONS:
+                    if os.path.exists(loc):
+                        config = HaizeaConfig.from_file(loc)
+                        break
+                else:
+                    print >> sys.stdout, "No configuration file specified, and none found at default locations."
+                    print >> sys.stdout, "Make sure a config file exists at:\n  -> %s" % "\n  -> ".join(defaults.CONFIG_LOCATIONS)
+                    print >> sys.stdout, "Or specify a configuration file with the --conf option."
+                    exit(1)
+            else:
+                config = HaizeaConfig.from_file(configfile)
+            
+            import sys
+            
+            if len(sys.argv) == 1:
+                print >> sys.stdout, "You must provide experimetns to graph"
+                print >> sys.stdout, "Example: haizea-experiments-line-graph-ar 1"
+                print >> sys.stdout, "         haizea-experiments-line-graph-ar \"1 2 3 4\"  (List of experiments)"
+                exit(1)
+            
 
+            db = Database(os.path.expanduser(config.get("datafile"))).db
+            
+            try:
+                ids = map(int, sys.argv[1:])
+                experiments = db.query(Experiment).filter(Experiment.id.in_(ids))
+                g = Graph()
+                g.graph_probes(experiments, self.type)
+            except Exception:
+                print >> sys.stderr, "Invalid ID(s)"
+
+            
+        except ConfigException, msg:
+            print >> sys.stderr, "Error in configuration file:"
+            print >> sys.stderr, msg
+            exit(1)
 

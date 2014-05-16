@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+from haizea.cli import commands
+import sys
+try:
+	import psyco
+	psyco.full()
+except:
+	pass
+	
+c = commands.haizea_experiments_graph(sys.argv, "bar_accepted_ims")
+c.run()
