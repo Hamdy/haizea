@@ -36,7 +36,12 @@ setup(name='haizea',
                'bin/haizea-experiments-line-graph-accepted-im', 'bin/haizea-experiments-bar-graph-accepted-im',
                'bin/haizea-experiments-bar-graph-rejected-im', 'bin/haizea-experiments-line-graph-rejected-im',
                'bin/haizea-experiments-bar-graph-completed-be','bin/haizea-experiments-line-graph-completed-be',
-               'bin/haizea-experiments-bar-graph-queue-be', 'bin/haizea-experiments-line-graph-queue-be'
+               'bin/haizea-experiments-bar-graph-queue-be', 'bin/haizea-experiments-line-graph-queue-be',
+               'bin/haizea-experiments-bar-graph-avg-cpu-utillization',
+               'bin/haizea-experiments-bar-graph-avg-memory-utillization', 
+               'bin/haizea-experiments-bar-graph-avg-disk-utillization',
+               'bin/haizea-experiments-bar-graph-avg-net-in-utillization', 
+               'bin/haizea-experiments-bar-graph-avg-net-out-utillization',
                
                ],
       

@@ -46,7 +46,7 @@ class CPUPnode(Base):
     experiment = relationship("Experiment", backref=backref('pnodes_cpu_load', order_by=id))
     time = Column(String)
     node = Column(String)
-    value = Column(String)
+    value = Column(Float)
 
     def __repr__(self):
         return "Cpu Utilization for single physical node %s in experiment %s " % (self.node, self.experiment_id)
@@ -59,7 +59,7 @@ class DiskPnode(Base):
     experiment = relationship("Experiment", backref=backref('pnodes_disk_load', order_by=id))
     time = Column(String)
     node = Column(String)
-    value = Column(String)
+    value = Column(Float)
 
     def __repr__(self):
         return "Disk Utilization for single physical node %s in experiment %s " % (self.node, self.experiment_id)
@@ -72,7 +72,7 @@ class NetInPnode(Base):
     experiment = relationship("Experiment", backref=backref('pnodes_net_in_load', order_by=id))
     time = Column(String)
     node = Column(String)
-    value = Column(String)
+    value = Column(Float)
 
     def __repr__(self):
         return "Net in Utilization for single physical node %s in experiment %s " % (self.node, self.experiment_id)
@@ -85,7 +85,7 @@ class NetOutPnode(Base):
     experiment = relationship("Experiment", backref=backref('pnodes_net_out_load', order_by=id))
     time = Column(String)
     node = Column(String)
-    value = Column(String)
+    value = Column(Float)
 
 class MemoryPnode(Base):
     __tablename__ = 'memory_pnode_load'
@@ -95,7 +95,7 @@ class MemoryPnode(Base):
     experiment = relationship("Experiment", backref=backref('pnodes_memory_load', order_by=id))
     time = Column(String)
     node = Column(String)
-    value = Column(String)
+    value = Column(Float)
 
     def __repr__(self):
         return "Memory Utilization for single physical node %s in experiment %s " % (self.node, self.experiment_id)

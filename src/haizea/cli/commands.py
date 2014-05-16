@@ -939,7 +939,7 @@ class haizea_experiments_graph(Command):
                 ids = map(int, sys.argv[1:])
                 experiments = db.query(Experiment).filter(Experiment.id.in_(ids))
                 g = Graph()
-                g.graph_probes(experiments, self.type)
+                g.graph(experiments, self.type)
             except Exception:
                 print >> sys.stderr, "Invalid ID(s)"
 
