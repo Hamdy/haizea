@@ -51,5 +51,9 @@ probe_class_mappings = {             "ar": "haizea.pluggable.accounting.leases.A
                               "immediate": "haizea.pluggable.accounting.leases.IMProbe",
                         "cpu-utilization": "haizea.pluggable.accounting.utilization.CPUUtilizationProbe",
                         "cpu_pnodes" : "haizea.pluggable.accounting.utilization.CpuLoadOnPhysicalNodes",
-                             "disk-usage": "haizea.pluggable.accounting.utilization.DiskUsageProbe",
+                        "disk_pnodes" : "haizea.pluggable.accounting.utilization.DiskLoadOnPhysicalNodes",
+                        "memory_pnodes" : "haizea.pluggable.accounting.utilization.MemoryLoadOnPhysicalNodes",
+                        "net_in_pnodes" : "haizea.pluggable.accounting.utilization.NetInLoadOnPhysicalNodes",
+                        "net_out_pnodes" : "haizea.pluggable.accounting.utilization.NetOUTLoadOnPhysicalNodes",
+                        "disk-usage": "haizea.pluggable.accounting.utilization.DiskUsageProbe",
                         }

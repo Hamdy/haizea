@@ -269,7 +269,6 @@ class BEProbe(AccountingProbe):
         db.execute(CompletedBE.__table__.insert(), completed_bes)
         db.execute(QueueSizeBE.__table__.insert(), queue_size_bes)
         db.execute(LeaseStatistics.__table__.insert(), lease_stats)
-        
         db.commit()
         
     def at_timestep(self, lease_scheduler):

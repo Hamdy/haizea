@@ -10,11 +10,12 @@ More files can be found in the tests directory.
 	best-effort lease that is already running. 
 	</description>
 	<site>
-		<resource-types names="CPU Memory Net-in Net-out"/> 
+		<resource-types names="CPU Memory Disk Net-in Net-out"/> 
 		<nodes> 
 		<node-set numnodes="4"> 
 		<res type="CPU" amount="100"/> 
-		<res type="Memory" amount="1024"/> 
+		<res type="Memory" amount="1024"/>
+		<res type="Disk" amount="515"/>
 		<res type="Net-in" amount="100000"/> 
 		<res type="Net-out" amount="100000"/>
 </node-set> 
@@ -31,6 +32,9 @@ More files can be found in the tests directory.
 			<node-set numnodes="1">
 				<res type="CPU" amount="100"/>
 				<res type="Memory" amount="1024"/>
+				<res type="Disk" amount="512"/>
+				<res type="Net-in" amount="50000"/> 
+				<res type="Net-out" amount="50000"/>
 			</node-set>
 		</nodes>	
 		<start></start>
@@ -48,6 +52,8 @@ More files can be found in the tests directory.
 			<node-set numnodes="4">
 				<res type="CPU" amount="100"/>
 				<res type="Memory" amount="1024"/>
+				<res type="Net-in" amount="50000"/> 
+			<res type="Net-out" amount="50000"/>
 			</node-set>
 		</nodes>	
 		<start>

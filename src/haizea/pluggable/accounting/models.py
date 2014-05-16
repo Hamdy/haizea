@@ -38,6 +38,69 @@ class CPU(Base):
     def __repr__(self):
         return "Cpu Utilization for experiment %s" % self.experiment_id
     
+class CPUPnode(Base):
+    __tablename__ = 'cpu_pnode_load'
+    
+    id = Column(Integer, primary_key=True)
+    experiment_id = Column(Integer, ForeignKey('experiments.id'))
+    experiment = relationship("Experiment", backref=backref('pnodes_cpu_load', order_by=id))
+    time = Column(String)
+    node = Column(String)
+    value = Column(String)
+
+    def __repr__(self):
+        return "Cpu Utilization for single physical node %s in experiment %s " % (self.node, self.experiment_id)
+
+class DiskPnode(Base):
+    __tablename__ = 'disk_pnode_load'
+    
+    id = Column(Integer, primary_key=True)
+    experiment_id = Column(Integer, ForeignKey('experiments.id'))
+    experiment = relationship("Experiment", backref=backref('pnodes_disk_load', order_by=id))
+    time = Column(String)
+    node = Column(String)
+    value = Column(String)
+
+    def __repr__(self):
+        return "Disk Utilization for single physical node %s in experiment %s " % (self.node, self.experiment_id)
+
+class NetInPnode(Base):
+    __tablename__ = 'net_in_pnode_load'
+    
+    id = Column(Integer, primary_key=True)
+    experiment_id = Column(Integer, ForeignKey('experiments.id'))
+    experiment = relationship("Experiment", backref=backref('pnodes_net_in_load', order_by=id))
+    time = Column(String)
+    node = Column(String)
+    value = Column(String)
+
+    def __repr__(self):
+        return "Net in Utilization for single physical node %s in experiment %s " % (self.node, self.experiment_id)
+
+class NetOutPnode(Base):
+    __tablename__ = 'net_out_pnode_load'
+    
+    id = Column(Integer, primary_key=True)
+    experiment_id = Column(Integer, ForeignKey('experiments.id'))
+    experiment = relationship("Experiment", backref=backref('pnodes_net_out_load', order_by=id))
+    time = Column(String)
+    node = Column(String)
+    value = Column(String)
+
+class MemoryPnode(Base):
+    __tablename__ = 'memory_pnode_load'
+    
+    id = Column(Integer, primary_key=True)
+    experiment_id = Column(Integer, ForeignKey('experiments.id'))
+    experiment = relationship("Experiment", backref=backref('pnodes_memory_load', order_by=id))
+    time = Column(String)
+    node = Column(String)
+    value = Column(String)
+
+    def __repr__(self):
+        return "Memory Utilization for single physical node %s in experiment %s " % (self.node, self.experiment_id)
+ 
+    
 class LeaseStatistics(Base):
     __tablename__ = 'lease_statistics'
     
