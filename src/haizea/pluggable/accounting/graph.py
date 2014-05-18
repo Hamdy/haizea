@@ -1,5 +1,7 @@
 import pygal
 from pygal.style import LightStyle
+import os
+from datetime import datetime
 
 class Graph(object):
     def __init__(self):
@@ -134,6 +136,17 @@ class Graph(object):
         self.chart.x_labels = map(str, x_labels)
         for k, v in data.iteritems():
             self.chart.add(k, v)
-            
+        
+        try:
+            dir_path = os.path.expanduser("~/.haizea/graphs")
+            if not os.path.exists(dir_path):
+                os.mkdir(dir_path)
+            file_name = str(datetime.now())
+            self.chart.render_to_file("%s/chart-%s.svg" % (dir_path, file_name))
+        except:
+            pass
+        
         self.chart.render_in_browser()
+        
+        
     
