@@ -28,8 +28,8 @@ class CPU(Base):
     __tablename__ = 'cpu_utilizations'
     
     id = Column(Integer, primary_key=True)
-    experiment_id = Column(Integer, ForeignKey('experiments.id'))
-    experiment = relationship("Experiment", backref=backref('cpu_utilizations', order_by=id))
+    experiment_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'))
+    experiment = relationship("Experiment", backref=backref('cpu_utilizations',  cascade='all, delete, delete-orphan', order_by=id))
     time = Column(String)
     node = Column(String)
     value = Column(String)
@@ -42,8 +42,8 @@ class CPUPnode(Base):
     __tablename__ = 'cpu_pnode_load'
     
     id = Column(Integer, primary_key=True)
-    experiment_id = Column(Integer, ForeignKey('experiments.id'))
-    experiment = relationship("Experiment", backref=backref('pnodes_cpu_load', order_by=id))
+    experiment_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'))
+    experiment = relationship("Experiment", backref=backref('pnodes_cpu_load', cascade='all, delete, delete-orphan', order_by=id))
     time = Column(String)
     node = Column(String)
     value = Column(Float)
@@ -55,8 +55,8 @@ class DiskPnode(Base):
     __tablename__ = 'disk_pnode_load'
     
     id = Column(Integer, primary_key=True)
-    experiment_id = Column(Integer, ForeignKey('experiments.id'))
-    experiment = relationship("Experiment", backref=backref('pnodes_disk_load', order_by=id))
+    experiment_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'))
+    experiment = relationship("Experiment", backref=backref('pnodes_disk_load',  cascade='all, delete, delete-orphan', order_by=id))
     time = Column(String)
     node = Column(String)
     value = Column(Float)
@@ -68,8 +68,8 @@ class NetInPnode(Base):
     __tablename__ = 'net_in_pnode_load'
     
     id = Column(Integer, primary_key=True)
-    experiment_id = Column(Integer, ForeignKey('experiments.id'))
-    experiment = relationship("Experiment", backref=backref('pnodes_net_in_load', order_by=id))
+    experiment_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'))
+    experiment = relationship("Experiment", backref=backref('pnodes_net_in_load',  cascade='all, delete, delete-orphan', order_by=id))
     time = Column(String)
     node = Column(String)
     value = Column(Float)
@@ -81,8 +81,8 @@ class NetOutPnode(Base):
     __tablename__ = 'net_out_pnode_load'
     
     id = Column(Integer, primary_key=True)
-    experiment_id = Column(Integer, ForeignKey('experiments.id'))
-    experiment = relationship("Experiment", backref=backref('pnodes_net_out_load', order_by=id))
+    experiment_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'))
+    experiment = relationship("Experiment", backref=backref('pnodes_net_out_load',  cascade='all, delete, delete-orphan', order_by=id))
     time = Column(String)
     node = Column(String)
     value = Column(Float)
@@ -91,8 +91,8 @@ class MemoryPnode(Base):
     __tablename__ = 'memory_pnode_load'
     
     id = Column(Integer, primary_key=True)
-    experiment_id = Column(Integer, ForeignKey('experiments.id'))
-    experiment = relationship("Experiment", backref=backref('pnodes_memory_load', order_by=id))
+    experiment_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'))
+    experiment = relationship("Experiment", backref=backref('pnodes_memory_load',  cascade='all, delete, delete-orphan', order_by=id))
     time = Column(String)
     node = Column(String)
     value = Column(Float)
@@ -105,8 +105,8 @@ class LeaseStatistics(Base):
     __tablename__ = 'lease_statistics'
     
     id = Column(Integer, primary_key=True)
-    experiment_id = Column(Integer, ForeignKey('experiments.id'))
-    experiment = relationship("Experiment", backref=backref('lease_statistics', order_by=id))
+    experiment_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'))
+    experiment = relationship("Experiment", backref=backref('lease_statistics',  cascade='all, delete, delete-orphan', order_by=id))
     lease_id = Column(Integer)
     waiting_time = Column(Float)
     slowdown = Column(Float)
@@ -115,8 +115,8 @@ class AcceptedAR(Base):
     __tablename__ = 'accepted_ar'
     
     id = Column(Integer, primary_key=True)
-    experiment_id = Column(Integer, ForeignKey('experiments.id'))
-    experiment = relationship("Experiment", backref=backref('accepted_ars', order_by=id))
+    experiment_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'))
+    experiment = relationship("Experiment", backref=backref('accepted_ars',  cascade='all, delete, delete-orphan', order_by=id))
     time = Column(Float)
     lease_id = Column(Integer)
     count = Column(Integer)
@@ -125,8 +125,8 @@ class AcceptedIM(Base):
     __tablename__ = 'accepted_im'
     
     id = Column(Integer, primary_key=True)
-    experiment_id = Column(Integer, ForeignKey('experiments.id'))
-    experiment = relationship("Experiment", backref=backref('accepted_ims', order_by=id))
+    experiment_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'))
+    experiment = relationship("Experiment", backref=backref('accepted_ims',  cascade='all, delete, delete-orphan', order_by=id))
     time = Column(Float)
     lease_id = Column(Integer)
     count = Column(Integer)
@@ -135,8 +135,8 @@ class RejectedAR(Base):
     __tablename__ = 'rejected_ar'
     
     id = Column(Integer, primary_key=True)
-    experiment_id = Column(Integer, ForeignKey('experiments.id'))
-    experiment = relationship("Experiment", backref=backref('rejected_ars', order_by=id))
+    experiment_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'))
+    experiment = relationship("Experiment", backref=backref('rejected_ars',  cascade='all, delete, delete-orphan', order_by=id))
     time = Column(Float)
     lease_id = Column(Integer)
     count = Column(Integer)
@@ -145,8 +145,8 @@ class RejectedIM(Base):
     __tablename__ = 'rejected_im'
     
     id = Column(Integer, primary_key=True)
-    experiment_id = Column(Integer, ForeignKey('experiments.id'))
-    experiment = relationship("Experiment", backref=backref('rejected_ims', order_by=id))
+    experiment_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'))
+    experiment = relationship("Experiment", backref=backref('rejected_ims',  cascade='all, delete, delete-orphan', order_by=id))
     time = Column(Float)
     lease_id = Column(Integer)
     count = Column(Integer)
@@ -155,8 +155,8 @@ class CompletedBE(Base):
     __tablename__ = 'completed_be'
     
     id = Column(Integer, primary_key=True)
-    experiment_id = Column(Integer, ForeignKey('experiments.id'))
-    experiment = relationship("Experiment", backref=backref('completed_bes', order_by=id))
+    experiment_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'))
+    experiment = relationship("Experiment", backref=backref('completed_bes',  cascade='all, delete, delete-orphan', order_by=id))
     time = Column(Float)
     lease_id = Column(Integer)
     count = Column(Integer)
@@ -165,8 +165,8 @@ class QueueSizeBE(Base):
     __tablename__ = 'queue_size_be'
     
     id = Column(Integer, primary_key=True)
-    experiment_id = Column(Integer, ForeignKey('experiments.id'))
-    experiment = relationship("Experiment", backref=backref('queue_size_bes', order_by=id))
+    experiment_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'))
+    experiment = relationship("Experiment", backref=backref('queue_size_bes',  cascade='all, delete, delete-orphan', order_by=id))
     time = Column(Float)
     lease_id = Column(Integer)
     count = Column(Integer)

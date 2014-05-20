@@ -22,6 +22,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.engine import Engine
+from sqlalchemy import event
+
 from models import *
 
 database = None
@@ -42,7 +45,12 @@ class Database(object):
     def db(self):
         return self.database
 
-        
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
+
 # The following dictionaries provide a shorthand notation to refer to
 # the accounting probes (this shorthand is used in the configuration file,
 # so the fully-qualified class name doesn't have to be written)
