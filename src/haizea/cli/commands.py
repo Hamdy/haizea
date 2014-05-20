@@ -596,14 +596,14 @@ class haizea_experiments_statistics_list(Command):
                         
                 print "\n"
     
-                fields = [("name","Best Effort Lease ID", 20),
+                fields = [("id","Best Effort Lease ID", 20),
                       ("waiting","Waiting time (mins)", 20),
                       ("slowdown" , "Slow down Ratio", 10),
                       ]
                 values = []
                 
                 for e in lease_statistics:
-                    d = {"name":e.id, "waiting":e.waiting_time, "slowdown":e.slowdown}
+                    d = {"id":e.lease_id, "waiting":e.waiting_time, "slowdown":e.slowdown}
                     values.append(d)
                 
                 console_table_printer(fields, values)
