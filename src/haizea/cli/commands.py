@@ -65,6 +65,28 @@ class haizea_gui(Command):
     def run(self):
         self.parse_options()
         
+        pidfile = defaults.DAEMON_PIDFILE # TODO: Make configurable
+
+        if os.path.exists(pidfile):
+            pf  = file(pidfile,'r')
+            pid = int(pf.read().strip())
+            pf.close()
+ 
+            try:
+                os.kill(pid, signal.SIG_DFL)
+            except OSError, (err, msg):
+                if err == errno.ESRCH:
+                    # Pidfile is stale. Remove it.
+                    os.remove(pidfile)
+                else:
+                    msg = "Unexpected error when checking pid file '%s'.\n%s\n" %(pidfile, msg)
+                    sys.stderr.write(msg)
+                    sys.exit(1)
+            else:
+                msg = "Haizea seems to be already running (pid %i)\n" % pid
+                sys.stderr.write(msg)
+                sys.exit(1)
+                    
         try:
             configfile=self.opt.conf
             if configfile == None:
@@ -81,7 +103,7 @@ class haizea_gui(Command):
             else:
                 config = HaizeaConfig.from_file(configfile)
             
-            app = HaizeaGuiApp()
+            app = HaizeaGuiApp(Manager, config, pidfile)
             app.run()
 
         except ConfigException, msg:
@@ -338,7 +360,7 @@ class haizea_experiments_delete(Command):
             if len(sys.argv) == 1:
                 print >> sys.stdout, "You must provide experimetns to delete"
                 print >> sys.stdout, "Example: haizea-experiments-delete 1"
-                print >> sys.stdout, "         haizea-experimetns-delete \"1 2 3 4\"  (List of experiments)"
+                print >> sys.stdout, "         haizea-experimetns-delete 1 2 3 4  (List of experiments)"
                 exit(1)
             
 
@@ -929,7 +951,7 @@ class haizea_experiments_graph(Command):
             if len(sys.argv) == 1:
                 print >> sys.stdout, "You must provide experimetns to graph"
                 print >> sys.stdout, "Example: haizea-experiments-line-graph-ar 1"
-                print >> sys.stdout, "         haizea-experiments-line-graph-ar \"1 2 3 4\"  (List of experiments)"
+                print >> sys.stdout, "         haizea-experiments-line-graph-ar 1 2 3 4  (List of experiments)"
                 exit(1)
             
 
