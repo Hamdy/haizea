@@ -491,7 +491,6 @@ class HaizeaGuiApp(object):
         self.config._options["policy-matchmaking"] = "condor"
         self.config._options['clock'] = 'simulated'
         self.config._options['override-memory'] = -1 #no memory override
-        self.config._options['resources'] = "4  CPU:100 Memory:1024 DISK:1024 NET-IN:1000 NET-OUT:1000"
         now = datetime.now()
         
         self.config._options['starttime'] = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second)
