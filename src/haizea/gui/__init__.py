@@ -274,7 +274,11 @@ class HaizeaGuiApp(object):
     
     def db_folder_changed_callback(self, *args):
         self.config._options["datafile"] = ''.join(os.path.join([self.builder.get_object('db_folder').get_filename(), os.sep, 'results.dat']))
-    
+        # reload db module so that 
+        import haizea.pluggable.accounting as acc
+        reload(acc)
+        self.reload_experiments()
+
     def transfer_mechanism_changed_callback(self, *args):
         self.config._options['transfer-mechanism'] = self.builder.get_object('transfer-mechanism').get_active_id()
 
@@ -712,7 +716,7 @@ class HaizeaGuiApp(object):
     
     def save_configuration_as_callback(self, *args):
         pass
-          
+     
     def run_experiment(self, *args):
         self.console.set_text("")
         self.manager.reload(self.config, False, None, logging_handler=self.gui_loggin_handler, site=self.site)
