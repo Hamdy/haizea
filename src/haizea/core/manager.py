@@ -82,17 +82,17 @@ class Manager(object):
     
     __metaclass__ = Singleton
     
-    def __init__(self, config, daemon=False, pidfile=None):
+    def __init__(self, config, daemon=False, pidfile=None, logging_handler=None, site=None):
         """Initializes the manager.
         
-        Argument:
+        Argument:site
         config -- a populated instance of haizea.common.config.RMConfig
         daemon -- True if Haizea must run as a daemon, False if it must
                   run in the foreground
         pidfile -- When running as a daemon, file to save pid to
         """
         self.config = config
-        
+        self.logging_handler = logging_handler
         # Create the RM components
         
         mode = config.get("mode")
@@ -147,18 +147,21 @@ class Manager(object):
                     
         # Enactment modules
         if mode == "simulated":
-            resources = self.config.get("simul.resources")
-            if resources == "in-tracefile":
-                tracefile = os.path.expanduser(self.config.get("tracefile"))
-                site = Site.from_lwf_file(tracefile)
-            elif resources.startswith("file:"):
-                sitefile = resources.split(":")
-                site = Site.from_xml_file(sitefile)
+            if not site:
+                resources = self.config.get("simul.resources")
+                if resources == "in-tracefile":
+                    tracefile = os.path.expanduser(self.config.get("tracefile"))
+                    self.site = Site.from_lwf_file(tracefile)
+                elif resources.startswith("file:"):
+                    sitefile = resources.split(":")
+                    self.site = Site.from_xml_file(sitefile)
+                else:
+                    self.site = Site.from_resources_string(resources)
             else:
-                site = Site.from_resources_string(resources)
-    
+                self.site = site
+            
             deploy_bandwidth = config.get("imagetransfer-bandwidth")
-            info_enact = SimulatedResourcePoolInfo(site)
+            info_enact = SimulatedResourcePoolInfo(self.site)
             vm_enact = SimulatedVMEnactment()
             deploy_enact = SimulatedDeploymentEnactment(deploy_bandwidth)
         elif mode == "opennebula":
@@ -235,7 +238,6 @@ class Manager(object):
             max_in_future = -1 # Unlimited
         elif backfilling == constants.BACKFILLING_INTERMEDIATE:
             max_in_future = self.config.get("backfilling-reservations")
-        
         vm_scheduler = VMScheduler(slottable, resourcepool, mapper, max_in_future)
     
         # Statistics collection 
@@ -267,19 +269,27 @@ class Manager(object):
         persistence_file = self.config.get("persistence-file")
         if persistence_file == "none":
             persistence_file = None
+        
         self.persistence = PersistenceManager(persistence_file)
         
         self.logger = logging.getLogger("RM")
 
-
+    def reload(self, config, daemon, pidfile, logging_handler, site):
+        """
+        A work around the singleton, so that GUI can run
+        several experiments,with different configurations
+        """
+        self.__init__(config, daemon, pidfile, logging_handler, site)
+    
     def init_logging(self):
         """Initializes logging
         
         """
-
         logger = logging.getLogger("")
         if self.daemon:
-            handler = logging.FileHandler(os.path.expanduser(self.config.get("logfile")))
+                handler = logging.FileHandler(os.path.expanduser(self.config.get("logfile")))
+        elif self.logging_handler:
+            handler = self.logging_handler
         else:
             handler = logging.StreamHandler()
         if sys.version_info[1] <= 4:
@@ -292,7 +302,6 @@ class Manager(object):
         logger.setLevel(level)
         logging.setLoggerClass(HaizeaLogger)
 
-        
     def daemonize(self):
         """Daemonizes the Haizea process.
         
@@ -344,7 +353,6 @@ class Manager(object):
     def start(self):
         """Starts the resource manager"""
         self.logger.info("Starting resource manager")
-        
         for frontend in self.frontends:
             frontend.load(self)
         
@@ -745,7 +753,6 @@ class SimulatedClock(Clock):
         self.logger.status("Starting simulated clock")
         self.manager.accounting.start(self.get_start_time())
         prevstatustime = self.time
-        
         # Main loop
         while not self.done:
             # Check if there are any changes in the resource pool
@@ -753,7 +760,6 @@ class SimulatedClock(Clock):
             for n in new_nodes:
                 rt = slottable.create_resource_tuple_from_capacity(n.capacity)
                 slottable.add_node(n.id, rt)   
-            
             # Check to see if there are any leases which are ending prematurely.
             # Note that this is unique to simulation.
             prematureends = self.manager.scheduler.slottable.get_prematurely_ending_res(self.time)

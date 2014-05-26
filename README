@@ -23,7 +23,7 @@
     (1) Requirements:
     ------------------
     
-    sudo apt-get install python-dev libxslt1-dev zlib1g-dev libxml2-dev git-core
+    sudo apt-get install python-dev libxslt1-dev zlib1g-dev libxml2-dev git-core libgtk-3-dev
     
     
     (2) Offline install
