@@ -446,15 +446,21 @@ class HaizeaGuiApp(object):
         action = self.builder.get_object('experiments_actions').get_active_id()
         experiments =  self.db.query(Experiment).filter(Experiment.id.in_([b.experiment.id for b in self.experiments_waiting_for_action]))
         if action == 'delete':
-            for button in self.experiments_waiting_for_action:
-                button.destroy()
             experiments.delete(synchronize_session=False)
             self.db.commit()
+            
+            for button in self.experiments_waiting_for_action:
+                button.destroy()
         
         else:
             g = Graph()
             g.graph(experiments, action)
             
+            for row in self.builder.get_object('experiments_area').get_children():
+                for button in row.get_children():
+                    if button in self.experiments_waiting_for_action:
+                        button.set_active(False)
+
         self.experiments_waiting_for_action = []
         select_all = self.builder.get_object('select-all-experiments')
         if select_all.get_active():
